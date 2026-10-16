@@ -1,0 +1,36 @@
+<!DOCTYPE HTML><html lang="en">
+<HEAD>
+
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2005. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+
+<meta charset="utf-8">
+<LINK REL="STYLESHEET" HREF="../book.css" TYPE="text/css">
+<TITLE>
+TableWrapLayout
+</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+TableWrapLayout</H1>
+<p>TableWrapLayout is a grid-based layout very similar to SWT's versatile 
+ GridLayout. It differs from GridLayout in that it uses a layout algorithm that 
+works more like HTML tables. It tries to respect the provided client area width 
+and grows vertically to compensate. </p>
+<p>There are many similarities between GridLayout and 
+TableWrapLayout. Both organize children in grids. Both have layout data that 
+instructs the layout how to treat each control. Both can accept hints on which 
+control should grab excess space, etc.</p>
+<p>However, they fundamentally differ in the approach to the 
+layout. <code>TableWrapLayout</code> starts with columns. It computes minimal, 
+preferred and maximum widths of each column and uses this information to assign 
+excess space. It also tries to be fair when dividing space across columns so 
+that there is no excess wrapping of some controls.</p>
+<p>It is possible to mix <code>GridLayout</code> and <code>
+TableWrapLayout</code> but the branch where <code>GridLayout</code> is used is 
+the one where wrapping stops. This is quite acceptable if you don't want it to 
+wrap (if the composite contains controls that cannot wrap anyway, like text, 
+buttons, trees etc.). However, you should have an unbroken path of TableWrapLayouts 
+from the form body to each text control that needs to wrap.</p>
+</BODY>
+</HTML>

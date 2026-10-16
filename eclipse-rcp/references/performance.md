@@ -1,0 +1,11 @@
+# Performance investigation playbook
+
+**Define the symptom.** Cold start vs warm start, first opening a view vs repeated opening, typing latency, UI freezes, heap growth after closing a part, bundle resolution time, or high background CPU are different problems. Record OS, CPU, JDK, JVM flags, 4.40 target, product configuration, workspace size, installed bundles, and input data. Warm up before comparing hot operations; repeat runs and compare distributions, not one anecdote.
+
+**Evidence:** capture a thread dump during a freeze (identify the SWT display thread and blocking lock/I/O). For CPU/allocations use a locally installed profiler/JFR if available (JDK tools are usually offline), or short controlled timings. For memory growth, compare heap/retained references after repeated open/close cycles; distinguish Java heap from native SWT handles. For startup, inspect early plugin activation, service registration, p2/OSGi resolution and synchronous part construction, not just splash time. Log output and timing instrumentation must not expose secrets.
+
+**Likely levers after proof:** defer nonessential work; eliminate work on the UI thread; reduce duplicate listener notifications; batch viewer updates; avoid repeated full workspace scans; close native resources; break accidental eager bundle activation; eliminate excessive synchronous `@PostConstruct` and e3 `createPartControl` work. Do not change OSGi activation policy or bundle start levels blindly—dependencies and extension registration may depend on them. Job scheduling rules matter: blocking on a rule can look like slow computation.
+
+**Verify:** reproduce on the same target/JDK/workspace, measure identical operation before and after, check correctness/error logs and responsiveness, and run affected UI/PDE/JUnit tests. A test that only checks time can be flaky; keep performance measurement separate from deterministic functional assertions. If profiling tools, runnable product or baseline are absent, offer a hypothesis and measurement plan, not a claimed speedup.
+
+Offline entry points: `guide/workbench_scalability.htm`, `guide/runtime_jobs.htm`, `guide/runtime_jobs_rules.htm`, `guide/swt_threading.htm`, `reference/api/org/eclipse/core/runtime/jobs/`, `reference/api/org/eclipse/swt/widgets/Display.html`.

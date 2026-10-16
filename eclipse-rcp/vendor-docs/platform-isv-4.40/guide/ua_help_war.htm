@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2020. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta charset="utf-8">
+<link rel="STYLESHEET" href="../book.css" type="text/css">
+<script src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"></script>
+<title>Deploying the information center as a Web Archive</title>
+</head>
+<body>
+
+<h2>Deploying the Information Center as a Web Archive</h2>
+
+<p>
+Using Eclipse 3.4 or later it is possible to configure the help plugins to be deployed as a web archive (war file) which will act as a fully functioning information center. 
+The instructions below assume a Tomcat server has been installed, but with minor modifications these steps should work for any full featured server.
+</p>
+
+<ul>
+<li>Clone the <code>eclipse.platform.ua</code> repository
+<pre>git clone https://git.eclipse.org/r/platform/eclipse.platform.ua.git</pre>
+</li>
+<li>In the Git repository locate the <code>infocenter-web</code> directory and underneath that there will be two directories titled <code>infocenter-app</code> and <code>infocenter-product</code>.</li>
+<li>Make sure you have the "m2e - Maven Integration for Eclipse" feature installed in your Eclipse IDE.</li>
+<li>Import the <code>infocenter-web</code> Maven project using <i>File->Import->Existing Project</i>.</li>
+<li>Add some documentation plugins to the <code>infocenter-web/infocenter-app/src/main/webapp/WEB-INF/plugins directory</code>.</li>
+<li>Register the plugins in <code>infocenter-web/infocenter-app/src/main/webapp/WEB-INF/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info</code></li>
+<li>Install required Maven POMs from Eclipse Platform:
+<pre>
+git clone -q --depth 1 https://git.eclipse.org/r/platform/eclipse.platform.releng.aggregator &amp;&amp; mvn install -N -f eclipse.platform.releng.aggregator/eclipse-platform-parent &amp;&amp; mvn install -N -f eclipse.platform.releng.aggregator/eclipse.platform.releng.prereqs.sdk
+</pre>
+<li>Execute a Maven build in <code>infocenter-web</code><br/>
+  <ul>
+  <li>Either within Eclipse, right-click on <code>infocenter-build.launch</code> and select <i>Run As -> infocenter-build</i><br/></li>
+  <li>Or from command-line using the command <code>mvnw</code></li>
+  </ul>
+</li>
+<li>For Tomcat only. In <code>conf/server.xml</code> add <code>URIEncoding="UTF-8"</code> to the <code>connector</code> element, for example <pre>&lt;Connector port="8080" URIEncoding="UTF-8" etc.&gt;</pre> 
+If this step is not performed search will fail if the search term contains non ASCII characters.</li>
+<li>Start Tomcat and see the help system start up. The default URL is <a href="http://localhost:8080/help/">http://localhost:8080/help/</a>.</li>
+</ul>
+
+Notes: If you look in the <code>config.ini</code> the <code>help.war</code> file under directory <code>help/WEB_INF/configuration</code> you will notice the line <code>eclipse.product=org.eclipse.productname</code>.
+If your product has help system customizations in a product plugin you can activate these by changing this line to point to your product plugin.
+
+<h3>Troubleshooting</h3>
+
+<h4>HTTP 404 With Message "BridgeServlet: /help/"</h4>
+
+<p>
+In the <code>web.xml</code> activate the init parameter <code>enableFrameworkControls</code>. This enables endpoints to control the embedded OSGi container. Call <a href="http://localhost:8080/help/sp_test">http://localhost:8080/help/sp_test</a>.
+</p>
+<p>
+You should see the message "<code>Servlet delegate registered - org.eclipse.equinox.http.servlet.HttpServiceServlet</code>". You may instead see the message "<code>Servlet delegate not registered.</code>". 
+This indicates that bundle activator from bundle <code>org.eclipse.equinox.http.servletbridge</code> was not started or that it accesses a different instance of class <code>org.eclipse.equinox.servletbridge.BridgeServlet</code>.
+</p>
+<p>
+For all available framework control endpoints refer to <code>org.eclipse.equinox.servletbridge.BridgeServlet.serviceFrameworkControls(HttpServletRequest, HttpServletResponse)</code>.
+</p>
+
+</body>
+</html>

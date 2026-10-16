@@ -1,0 +1,9 @@
+# Optional local QF-Test MCP (11.0+)
+
+QF-Test 11.0 supports a built-in MCP server. A running QF-Test process does **not** imply its MCP port is open. In QF-Test, check Artificial Intelligence → MCP & Agent Skills → Enable MCP Server and configured port. The documented default is `5543`, endpoint `http://127.0.0.1:5543/mcp` (streamable HTTP); choose a different port if it conflicts with a local license server. Batch mode also documents `qftest -batch -mcp` or `-mcp=port`. Check the installed 11.0.0 UI/manual before configuring.
+
+OpenCode **V2** configuration uses `mcp.servers.qftest` with `type: "remote"` and that loopback URL; see `../README.md`. Do not use the vendor manual's older OpenCode configuration snippet with `mcp.qftest`, which does not match V2. No `npx`, HTTP catalog, or public endpoint is required. Do not assume the MCP server is reachable across a container/VM boundary; `127.0.0.1` refers to the client host.
+
+When connected, discover the available tools and their schemas rather than guessing arguments. Built-in tools documented for 11.0+ include `get_version`, `run_test`, `start_test`, `get_execution_state`, `save_run_log`, `ui-get_snapshot`, `ui-get_element_details`, `ui-click_on_element`, `ui-enter_text`, and screenshot tools. Confirm actual availability in the running instance. Use live snapshots for recognition, but preserve stable components/procedures in the suite instead of relying exclusively on transient snapshot element IDs. Browser, application, and mobile tools may launch or mutate the SUT: request approval when side effects matter.
+
+Security: procedures invoked via MCP run with the local user's permissions. Restrict exposure of custom procedures, validate tool parameters, and keep the server bound to loopback. Neither this skill nor MCP supplies a local LLM: configure the OpenCode model separately for fully offline operation.

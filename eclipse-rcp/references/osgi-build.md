@@ -1,0 +1,9 @@
+# OSGi, product packaging, and offline validation
+
+Inspect `META-INF/MANIFEST.MF` for bundle symbolic name, imports/required bundles, start level / activation policy and service dependencies. Cross-check extensions in `plugin.xml`, product config and feature definitions with the exact target platform. Eclipse 4.40 includes older-versioned individual bundles; do not require each bundle to be numbered 4.40. Avoid changing exported packages, version ranges, or `Require-Bundle`/`Import-Package` decisions solely because a profiler showed class loading.
+
+An Eclipse *platform* version is not a Java language-level guarantee for a project: read `Bundle-RequiredExecutionEnvironment`, compiler settings, launch JDK, Tycho/PDE configuration and product support policy. Avoid suggesting non-API `org.eclipse.*.internal` or implementation-model `impl` classes for production code. `plugin.xml` extension declarations may be processed lazily; loading a contributor class can still trigger activation or unwanted initialization.
+
+Validation: use the **project's existing** PDE, Tycho/Maven, or Gradle build. In an offline environment check that target platform, p2 repositories, Maven/Gradle caches and JDK exist locally *before* trying an offline build. Do not change build files to point to internet mirrors, add remote repositories, or claim a build passed when it could not resolve dependencies. Test bundle resolution, headless unit tests, SWT UI tests on supported platforms, and packaged product startup when feasible. If changing compatibility paths, test both e3 and e4 parts/commands/perspectives actually in use.
+
+Offline reference: `guide/runtime_model_bundles.htm`, `guide/firstplugin_manifest.htm`, `guide/product_def_plugins.htm`, `guide/rcp.htm`, `reference/extension-points/`, and the appropriate API package.

@@ -1,0 +1,9 @@
+# Components, recognition, synchronization
+
+Component lookup failures are not proof that the application is broken. Inspect the current SUT tree, candidate attributes, component hierarchy, active window/client, and the component definition stored in the suite. Prefer stable accessible names, IDs, or suitable SmartIDs over captions, positions, changing indexes, or screen coordinates. A SmartID is not interchangeable with a recorded QF-Test component ID; inspect project conventions and the installed manual for engine-specific SmartID syntax before adding one.
+
+When repairing a locator: (1) verify the correct SUT/client and screen are active; (2) compare actual component properties in the live inspector/snapshot with the suite; (3) fix the narrowest shared definition; (4) validate other tests using it. Do not replace a precise shared component with a broad match that happens to pass once. If a component is dynamic, use a stable parent, semantic property, or a parameterized procedure. Use `rc.getComponent("componentId")` only within an appropriate SUT script when native nodes are insufficient; it looks up a QF-Test component ID in the active SUT.
+
+Synchronization: distinguish *not yet present*, *present but disabled*, *covered by another window*, *wrong frame/client*, and *actually absent*. Prefer QF-Test's waiting/timeout and state-check facilities to fixed `sleep`s. Wait for a user-visible state or application event, not an arbitrary delay; avoid changing global timeouts to mask a single issue. For web apps, check page navigation and asynchronous rendering; for desktop apps, inspect modal dialogs and event threads. For mobile, verify device/app state and permissions.
+
+Record a clean sample of the intended interaction in the local 11.0.0 editor when uncertain about event/check node attributes. Never assume CSS/XPath/Selenium behavior applies directly to QF-Test IDs or SmartIDs.

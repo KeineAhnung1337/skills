@@ -1,0 +1,297 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+
+<meta name="copyright"
+	content="Copyright (c) IBM Corporation and others 2008, 2014. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page.">
+
+<meta charset="utf-8">
+<link REL="STYLESHEET" HREF="../book.css">
+
+<title>Installing software using the p2 director application</title>
+</head>
+<body>
+
+<h1>Installing Software Using the p2 Director Application</h1>
+In addition to the "Software Updates" dialog, you can also perform
+provisioning operations from a command line or script.
+This is achieved using a tool called the director application. The director application
+is a command line tool for installing additional software or uninstalling
+software from an Eclipse-based product. This application is capable of provisioning a
+complete installation from scratch or simply extending your application.
+Depending on your needs, this application can be executed both inside and
+outside of the target product being provisioned.
+
+<h2>Terminology</h2>
+<ul>
+	<li><b>Director application:</b> the application performing p2
+	operations such as install or uninstall. This application is provided
+	by the org.eclipse.equinox.p2.director.app bundle.</li>
+	<li><b>Provisioning operation:</b> an operation installing,
+	uninstalling features.</li>
+	<li><b>Target product:</b> the installation targeted by the
+	provisioning operation.</li>
+	<li><b>Builder:</b> an eclipse based application containing the
+	director application bundle and its dependents.</li>
+</ul>
+<br>
+
+<h2>Running Inside the Target Application</h2>
+<p>In this mode, the provisioning operation happens from within the
+targeted product that you are provisioning. It is equivalent to starting
+up the targeted product and using the p2 UI to perform the equivalent
+operation.</p>
+<p>This means that the target application has to be in a runnable
+state and has to contain the director application bundle. Also, since the
+target product will have run, cache files will have been created in the
+configuration folder (e.g. configuration/org.eclipse.osgi).</p>
+<p>The following example shows the command line used to install CDT
+into the SDK.</p>
+<pre>
+<code>
+  &lt;targetProductFolder&gt;/eclipsec.exe
+   -application org.eclipse.equinox.p2.director
+   -repository https://download.eclipse.org/releases/helios/
+   -installIU org.eclipse.cdt.feature.group/&lt;version&gt;
+</code>
+</pre>
+
+<h2>Provisioning Without Running the Target Application</h2>
+<p>In this case the provisioning operation happens "outside" of
+the targeted product. The "targeted product" is *not* started. This
+allows one to both modify an existing installation and create a complete
+installation from scratch given proper metadata.</p>
+
+<p>This also has the advantage that since the targeted product does
+not need to be started, the provisioning operation can be performed on
+any platform for any other platform (e.g. on my linux machine, one can
+add plug-ins to a windows-based target application).</p>
+
+<h3>Installing / Uninstalling IUs Into a Target Product</h3>
+<p>To install or uninstall something into an existing target product
+a few extra arguments than for the "inside" mode need to be set. These
+mostly consist in providing the provisioning operation the ID of the
+profile it needs to operate on, and where it is located on disk.</p>
+
+<p>For example, if from a directory called "d:\builder" containing
+the builder, you want to install CDT into an existing SDK located into
+"d:\eclipse", you would use the following command line.</p>
+<pre>
+<code>
+   d:\builder\eclipsec.exe
+   -application org.eclipse.equinox.p2.director
+   -repository https://download.eclipse.org/releases/helios/
+   -installIU org.eclipse.cdt.feature.group
+   -tag AddCDT
+   -destination d:/eclipse/
+   -profile SDKProfile</code>
+</pre>
+<p>Note that there is no need to describe the os/ws/arch of the
+platform being targeted because all this information is already
+available in the profile of the application in which we are
+provisioning.</p>
+
+<h3>Installing a Complete Product</h3>
+<p>The creation of a complete product using the director application
+only needs a few extra arguments compared to the previous example. Most of these
+consist of values used to initialize the profile in which the
+application will be provisioned.</p>
+
+<p>The following example demonstrates how to create a linux/gtk
+installation of the Eclipse SDK provisioned into a folder called "d:\eclipse" using
+a director application located in "d:\builder".</p>
+
+<pre>
+<code>
+   d:\builder\eclipsec.exe
+   -application org.eclipse.equinox.p2.director
+   -repository https://download.eclipse.org/eclipse/updates/3.6
+   -installIU org.eclipse.sdk.ide
+   -tag InitialState
+   -destination d:/eclipse/
+   -profile SDKProfile
+   -profileProperties org.eclipse.update.install.features=true
+   -bundlepool d:/eclipse/
+   -p2.os linux
+   -p2.ws gtk
+   -p2.arch x86
+   -roaming
+ </code>
+</pre>
+<p>The -p2.* arguments describe the os/ws/arch that the provisioned
+product is targeting.</p>
+<h3>Installing a Complete Product for macOS</h3>
+<p>The creation of a complete product for the macOS Operating System requires
+that the destination folder end with ".app/" as in the following example.
+
+<pre>
+ <code>
+   d:\builder\eclipsec.exe
+   -nosplash
+   -application org.eclipse.equinox.p2.director
+   -repository https://download.eclipse.org/releases/mars
+   -installIU org.eclipse.sdk.ide
+   -tag InitialState
+   -destination d:/eclipse/MyApp.app/
+   -profile SDKProfile
+   -profileProperties org.eclipse.update.install.features=true
+   -p2.os macosx
+   -p2.ws cocoa
+   -p2.arch x86_64
+   -roaming
+ </code>
+</pre>
+<p>For a macOS App product, you may also want to edit the Info.plist file, such as to
+change CFBundleName to the name of your product.
+<h2>Arguments Description</h2>
+
+<!-- This is generated from org.eclipse.equinox.internal.p2.director.app.DirectorApplication.main(String[]) -->
+<dl>
+<dt>
+-application org.eclipse.equinox.p2.director
+</dt>
+<dd>
+The application ID.
+</dd>
+<dt>-metadatarepository | metadatarepositories | -m &lt;comma separated list&gt;</dt>
+<dd>
+A list of URLs denoting meta-data repositories.
+</dd>
+<dt>-artifactrepository | artifactrepositories | -a &lt;comma separated list&gt;</dt>
+<dd>
+A list of URLs denoting artifact repositories.
+</dd>
+<dt>-repository | repositories | -r &lt;comma separated list&gt;</dt>
+<dd>
+A list of URLs denoting co-located meta-data and artifact repositories.
+</dd>
+<dt>-installIU | -installIUs | -i &lt;comma separated list&gt;</dt>
+<dd>
+Installs the listed IUs. Each entry in the list is in the form &lt;id&gt; [ '/' &lt;version&gt; ].
+</dd>
+<dt>-uninstallIU | -uninstallIUs | -u &lt;comma separated list&gt;</dt>
+<dd>
+Uninstalls the listed IUs. Each entry in the list is in the form &lt;id&gt; [ '/' &lt;version&gt; ].
+</dd>
+<dt>-revert &lt;comma separated list&gt;</dt>
+<dd>
+Revert the installation to a previous state [ the number representing the previous state of the profile  as found in p2/org.eclipse.equinox.p2.engine/&lt;profileId&gt;/ ].
+</dd>
+<dt>-purgeHistory</dt>
+<dd>
+Remove the history of the profile registry.
+</dd>
+<dt>-destination | -d &lt;path&gt;</dt>
+<dd>
+The folder in which the targeted product is located.
+</dd>
+<dt>-list | -l [ &lt;comma separated list&gt; ]</dt>
+<dd>
+Lists all IUs found in the given repositories. IUs can optionally be listed.  Each entry in the list is in the form &lt;id&gt; [ '/' &lt;version&gt; ].
+</dd>
+<dt>-listTags</dt>
+<dd>
+List the tags available
+</dd>
+<dt>-listInstalledRoots | -lir</dt>
+<dd>
+Lists all root IUs found in the given profile. Each entry in the list is in the form &lt;id&gt; [ '/' &lt;version&gt; ].
+</dd>
+<dt>-listFormat | -lf &lt;list format string&gt;</dt>
+<dd>
+Formats the list of IUs according to the given string. Use ${property} for variable parts, e.g. ${org.eclipse.equinox.p2.name} for the IU's name. ID and version of an IU are available through ${id} and ${version}.
+</dd>
+<dt>-profile | -p &lt;name&gt;</dt>
+<dd>
+Defines what profile to use for the actions.
+</dd>
+<dt>-profileproperties &lt;comma separated list&gt;</dt>
+<dd>
+A list of properties in the form key=value pairs. Effective only when a new profile is created.
+</dd>
+<dt>-iuProfileproperties &lt;path&gt;</dt>
+<dd>
+Path to a properties file containing a list of IU profile properties to set.
+</dd>
+<dt>-flavor | -f &lt;name&gt;</dt>
+<dd>
+Defines what flavor to use for a newly created profile.
+</dd>
+<dt>-bundlepool | -b &lt;path&gt;</dt>
+<dd>
+The location where the plug-ins and features will be stored. Effective only when a new profile is created.
+</dd>
+<dt>-p2.os</dt>
+<dd>
+The OS to use when the profile is created.
+</dd>
+<dt>-p2.ws</dt>
+<dd>
+The windowing system to use when the profile is created.
+</dd>
+<dt>-p2.arch</dt>
+<dd>
+The architecture to use when the profile is created.
+</dd>
+<dt>-p2.nl</dt>
+<dd>
+The language to use when the profile is created.
+</dd>
+<dt>-roaming</dt>
+<dd>
+Indicates that the product resulting from the installation can be moved. Effective only when a new profile is created.
+</dd>
+<dt>-shared | -s [ &lt;path&gt; ]</dt>
+<dd>
+Use a shared location for the install. The &lt;path&gt; defaults to ${user.home}/.p2
+</dd>
+<dt>-tag &lt;name&gt;</dt>
+<dd>
+Tag the provisioning operation for easy referencing when reverting.
+</dd>
+<dt>-verifyOnly</dt>
+<dd>
+Only verify that the actions can be performed. Don't actually install or remove anything.
+</dd>
+<dt>-downloadOnly</dt>
+<dd>
+Only download the artifacts.
+</dd>
+<dt>-followReferences</dt>
+<dd>
+Follow repository references.
+</dd>
+<dt>-verboseTrust | -vt</dt>
+<dd>
+Whether to print detailed information about the content trust.
+</dd>
+<dt>-trustSignedContentOnly | -tsco</dt>
+<dd>
+Whether to trust each artifact only if it is jar-signed or PGP-signed.
+</dd>
+<dt>-trustedAuthorities | -ta &lt;comma separated list&gt;</dt>
+<dd>
+The authorities from which repository content, including repository metadata, is trusted. An empty value will reject all remote connections.
+</dd>
+<dt>-trustedPGPKeys | -tk &lt;comma separated list&gt;</dt>
+<dd>
+The fingerprints of PGP keys to trust as signers of artifacts. An empty value will reject all PGP keys.
+</dd>
+<dt>-trustedCertificates | -tc &lt;comma separated list&gt;</dt>
+<dd>
+The SHA-256 'fingerprints' of unanchored certficates to trust as signers of artifacts. An empty value will reject all unanchored certificates.
+</dd>
+<dt>-addJREIU</dt>
+<dd>
+Include a default JRE installable unit as an extra IU. This IU satisfies JRE dependencies in the case that the content metadata does not otherwise provide an IU for that purpose.
+</dd>
+<dt>-help | -h | -?</dt>
+<dd>
+Prints this command line help information.
+</dd>
+</dl>
+
+
+While doing these operations, you can disable the automatic mirror selection mechanism by setting the VM argument eclipse.p2.mirrors to false.
+</body>
+</html>
