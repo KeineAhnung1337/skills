@@ -1,0 +1,4 @@
+interface:
+  display_name: "OSGi Offline Engineering"
+  short_description: "Build and diagnose OSGi systems offline"
+  default_prompt: "Use $osgi-offline to diagnose and improve this OSGi project using only local dependencies."
