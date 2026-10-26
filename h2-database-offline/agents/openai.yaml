@@ -1,0 +1,4 @@
+interface:
+  display_name: "H2 Database Offline"
+  short_description: "Build, debug, and maintain H2 databases offline"
+  default_prompt: "Use $h2-database-offline to inspect or change this local H2 database setup without network access."
