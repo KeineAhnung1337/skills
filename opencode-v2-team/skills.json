@@ -1,0 +1,10 @@
+{
+  "eclipse-rcp": "eclipse-rcp",
+  "h2-database-offline": "h2-database-offline",
+  "install4j-offline": "install4j-offline",
+  "oracle-db-offline": "oracle-db-offline",
+  "oracle-to-duckdb": "oracleToDuckDB/oracle-to-duckdb",
+  "osgi-offline": "osgi-offline",
+  "powershell-offline": "powershell-offline",
+  "qftest": "qftest"
+}

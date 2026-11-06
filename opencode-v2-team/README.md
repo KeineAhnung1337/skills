@@ -18,19 +18,22 @@ All agents still use your Qwen deployment. Different roles and effort requests d
 
 ## Install on the target
 
-1. Back up the target's existing configuration.
-2. Copy `opencode.jsonc` beside your project, or use it as `~/.config/opencode/opencode.jsonc` for all projects. If you have additional settings beyond the supplied config, merge them rather than overwriting them. Use one active JSON/JSONC configuration per location to avoid conflicting overrides.
-3. Keep `LLM_API_KEY_BOSYS` configured in the environment of the OpenCode server process. The key remains an environment reference in this file. The existing endpoint `https://chat/litellm/v1` must resolve from that system.
-4. Reload the server/configuration and start a fresh session. Confirm `gatekeeper` and `bosys/bosys_xhigh_reason#xhigh` are selected; an existing session can retain its previous model independently of the selected agent.
-5. Ask the lead to use `explorer` to locate a known function and report its path. Confirm a child session actually runs on the low route before allowing delegated code edits.
-6. Adapt `templates/AGENTS.md.template` using the target repository's real commands, architecture, examples, and compatibility constraints. Merge it into that project's `AGENTS.md`; do not copy unresolved placeholders as project facts.
-7. Follow `EVALUATION.md` to run the offline check, gateway tool-call probes, and a small comparison of real coding tasks. Keep the helper files outside your automatically loaded instructions; only `opencode.jsonc` and the project's completed `AGENTS.md` need to be loaded into coding sessions.
+1. Use the full skills repository checkout on the target so the offline reference files are available.
+2. Run `python3 opencode-v2-team/install.py --check` from its root, then render a preview with `python3 opencode-v2-team/install.py --output /tmp/opencode-team-preview.jsonc`. The installer resolves the checkout's absolute skill paths and retains the API-key environment reference.
+3. Install with `python3 opencode-v2-team/install.py --output ~/.config/opencode/opencode.jsonc` on Linux/macOS, or choose the actual target config path. An existing output requires `--replace`, which saves a timestamped backup and replaces the full config without merging. Compare the preview and retain any additional machine-specific settings first. If `opencode.json` already exists at that location, select that path instead of creating a conflicting JSONC config. See `WORKFLOWS.md` for details.
+4. Keep `LLM_API_KEY_BOSYS` configured in the environment of the OpenCode server process. The existing endpoint `https://chat/litellm/v1` must resolve from that system.
+5. Reload the server/configuration and start a fresh session. Confirm `gatekeeper` and `bosys/bosys_xhigh_reason#xhigh` are selected; an existing session can retain its previous model independently of the selected agent.
+6. Ask the lead to use `explorer` to locate a known function and load a relevant offline skill. Confirm a child session runs on the low route and can read the skill's references.
+7. Run `/bootstrap` in the target project to discover real commands and merge concise `AGENTS.md` guidance. The original `templates/AGENTS.md.template` remains available for manual setup; do not copy unresolved placeholders as project facts.
+8. Try `/fix`, `/feature`, `/review`, and `/verify`. Follow `EVALUATION.md` for gateway probes and a comparison of real coding tasks. The workflow definitions are already embedded in the config; helper documents and test fixtures do not need to be added to session instructions.
 
 Example task:
 
 > Fix the failing login test. Use explorer only if needed to locate the flow, debugger for the root cause, implementer for the bounded fix, test-writer for the regression case, and reviewer for the final diff. Choose only useful specialists, keep writers sequential, and report the checks actually run.
 
 The default instructions start with one active worker and permit up to two independent readers. This is a prompt-level coordination policy, not an enforced concurrency setting. No worker may launch more workers. File ownership for writers is also an instruction; write-capable roles have project edit access and must receive explicit assignments.
+
+The eight existing offline skills are registered for on-demand loading, with explicit skill-ID permissions and external-reference paths. The portable source config uses `{env:OPENCODE_SKILLS_DIR}`; prefer the installer so no extra environment variable is needed in the rendered config. See `WORKFLOWS.md` for the skill list, command behavior, and installation smoke test.
 
 ## Corrections from the supplied config
 
@@ -56,4 +59,4 @@ Your declared model context/output limits remain unchanged. A short final-answer
 
 ## Sources
 
-Configuration follows the official [v2 agent format](https://opencode.ai/v2/docs/agents), [provider setup](https://opencode.ai/v2/docs/providers), [model variants](https://opencode.ai/v2/docs/models), [permissions](https://opencode.ai/v2/docs/permissions), and [configuration format](https://opencode.ai/v2/docs/config). The [live JSON schema](https://opencode.ai/config.json) supplies field definitions. Sampling and thinking controls follow the [Qwen3.8-27B model card](https://huggingface.co/Qwen/Qwen3.8-27B); project guidance and context retention follow the [instructions](https://opencode.ai/v2/docs/instructions) and [compaction](https://opencode.ai/v2/docs/compaction) documentation. Network behavior and TPS-plugin compatibility have not been verified on your target system.
+Configuration follows the official [v2 agent format](https://opencode.ai/v2/docs/agents), [provider setup](https://opencode.ai/v2/docs/providers), [model variants](https://opencode.ai/v2/docs/models), [permissions](https://opencode.ai/v2/docs/permissions), [commands](https://opencode.ai/v2/docs/commands), [skills](https://opencode.ai/v2/docs/skills), and [configuration format](https://opencode.ai/v2/docs/config). The [live JSON schema](https://opencode.ai/config.json) supplies field definitions. Sampling and thinking controls follow the [Qwen3.8-27B model card](https://huggingface.co/Qwen/Qwen3.8-27B); project guidance and context retention follow the [instructions](https://opencode.ai/v2/docs/instructions) and [compaction](https://opencode.ai/v2/docs/compaction) documentation. Network behavior and TPS-plugin compatibility have not been verified on your target system.

@@ -8,7 +8,16 @@ Run from this package directory:
 python3 verify_setup.py
 ```
 
-This checks strict JSON syntax, agent/model references, delegation, and the intended edit restrictions. It is not full OpenCode schema validation or proof of runtime behavior. The prepared `.jsonc` uses strict JSON so Python needs no extra dependencies. After adding JSONC comments, use a JSONC-aware parser or keep a strict-JSON copy for this script.
+This checks strict JSON syntax, agent/model references, delegation, approved skill permissions, protected library paths, and workflow routing. It is not full OpenCode schema validation or proof of runtime behavior. The prepared `.jsonc` uses strict JSON so Python needs no extra dependencies. After adding JSONC comments, use a JSONC-aware parser or keep a strict-JSON copy for this script.
+
+Check target-path rendering and run the installer regression checks with:
+
+```bash
+python3 install.py --check
+python3 -m unittest discover -s tests -v
+```
+
+The tests exercise temporary config installation, exact backups, failed replacement, conflicting JSON/JSONC files, and reference access boundaries. No gateway or installed OpenCode process is used. `WORKFLOWS.md` describes the separate actual OpenCode command/skill smoke test.
 
 ## Gateway tool-call probe
 
@@ -25,6 +34,8 @@ Then check all four distinct routes used by the team:
 ```bash
 python3 verify_setup.py --live
 ```
+
+To probe the exact rendered configuration, add `--config /path/to/your/opencode.jsonc`. Keep `skills.json` beside this checker; it records this package's approved library entries. The helper expects this team's configuration, not arbitrary OpenCode configs.
 
 Each selected route makes two inference requests and consumes gateway/model tokens. The probe validates a structured tool call, its arguments and ID, and a follow-up using the actual synthetic tool result. It never runs a model-selected command or accesses project files. Output includes elapsed time, token usage when returned, and whether a reasoning field was observed, without revealing its contents. The default per-request timeout is 45 seconds and the output cap is 4,096 tokens. If high-effort probes hit the cap, retry only that route with `--max-tokens 8192` or `--max-tokens 16384`, within your server's limits; a truncated probe is incomplete, not proof of a broken model.
 

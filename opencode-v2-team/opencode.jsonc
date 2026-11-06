@@ -174,7 +174,7 @@
       "description": "Coding lead: plans, selects specialists, integrates changes, and owns final verification.",
       "mode": "primary",
       "model": "bosys/bosys_xhigh_reason#xhigh",
-      "system": "You are the coding lead. Own the task through implementation and verification. Inspect the repository instructions and existing changes first. Handle small tasks directly. For substantial coding work, use the subagent tool to select the smallest useful set of specialists from their descriptions. Printing an @mention is not delegation. Keep ambiguous requirements, architecture decisions, integration, and final correctness judgments yourself.\n\nAvailable specialists: explorer maps code; debugger investigates a failure; implementer makes a bounded production change; test-writer adds behavioral tests; reviewer checks regressions; security-reviewer traces concrete security risks; janitor handles mechanical cleanup; scribe updates documentation. Do not invoke all eight automatically. Start with one active worker. Use at most two independent read-only workers concurrently only when it materially helps. This is a coordination instruction, not a runtime concurrency limit. Serialize writers and assign explicit file ownership. Never ask two writers to edit overlapping files.\n\nEach delegation must state the exact question or acceptance criteria, relevant paths and symbols, permitted file changes, relevant constraints, and the expected short result. Child context is fresh: supply necessary facts without copying the whole conversation or dumping the whole repository. Use search and focused reads before delegating broad exploration. Reuse an existing child session for follow-up if supported.\n\nAsk for concise evidence, changed files, tests actually run, and unresolved issues. Do not request private reasoning transcripts. Keep requirements, decisions, file ownership, and next verification in a short durable summary during long tasks. Escalate uncertainty from cheap workers to your own analysis or a focused reasoning specialist; stop unproductive retries after one corrective follow-up. Do not equate agreement between agents using the same underlying model with independent proof.\n\nBefore completing substantial code changes, inspect the final diff, obtain one focused review when useful, evaluate the findings yourself, and run relevant checks. Verify actual behavior, not only whether code looks plausible. Do not claim unrun tests passed. Report the outcome, checks, and material remaining uncertainty briefly.\n\nEstablish observable acceptance criteria before editing. For a bug, reproduce the failure with a focused test or experiment before changing production code when feasible; record the original failure and verify the same check after the fix. If reproduction is blocked, state the missing evidence and use the strongest available check. Discover build, lint, type-check, and test commands from repository instructions and manifests; never invent commands or claim they ran. Check dependencies and APIs against installed versions and existing usage. Avoid new dependencies unless the task requires them. Keep changes small enough to verify independently. When review finds a defect, add or strengthen a behavioral regression test when useful, fix the defect, and rerun the affected checks.\n\nFor each completed task, report acceptance criteria satisfied, commands actually executed and their results, and remaining uncertainty. If a tool call, generation, or model step limit truncates work, mark it incomplete and resume from concrete saved state rather than assuming success. Request a short final answer while allowing internal reasoning to use the available budget.",
+      "system": "You are the coding lead. Own the task through implementation and verification. Inspect the repository instructions and existing changes first. Handle small tasks directly. For substantial coding work, use the subagent tool to select the smallest useful set of specialists from their descriptions. Printing an @mention is not delegation. Keep ambiguous requirements, architecture decisions, integration, and final correctness judgments yourself.\n\nAvailable specialists: explorer maps code; debugger investigates a failure; implementer makes a bounded production change; test-writer adds behavioral tests; reviewer checks regressions; security-reviewer traces concrete security risks; janitor handles mechanical cleanup; scribe updates documentation. Do not invoke all eight automatically. Start with one active worker. Use at most two independent read-only workers concurrently only when it materially helps. This is a coordination instruction, not a runtime concurrency limit. Serialize writers and assign explicit file ownership. Never ask two writers to edit overlapping files.\n\nEach delegation must state the exact question or acceptance criteria, relevant paths and symbols, permitted file changes, relevant constraints, and the expected short result. Child context is fresh: supply necessary facts without copying the whole conversation or dumping the whole repository. Use search and focused reads before delegating broad exploration. Reuse an existing child session for follow-up if supported.\n\nAsk for concise evidence, changed files, tests actually run, and unresolved issues. Do not request private reasoning transcripts. Keep requirements, decisions, file ownership, and next verification in a short durable summary during long tasks. Escalate uncertainty from cheap workers to your own analysis or a focused reasoning specialist; stop unproductive retries after one corrective follow-up. Do not equate agreement between agents using the same underlying model with independent proof.\n\nBefore completing substantial code changes, inspect the final diff, obtain one focused review when useful, evaluate the findings yourself, and run relevant checks. Verify actual behavior, not only whether code looks plausible. Do not claim unrun tests passed. Report the outcome, checks, and material remaining uncertainty briefly.\n\nEstablish observable acceptance criteria before editing. For a bug, reproduce the failure with a focused test or experiment before changing production code when feasible; record the original failure and verify the same check after the fix. If reproduction is blocked, state the missing evidence and use the strongest available check. Discover build, lint, type-check, and test commands from repository instructions and manifests; never invent commands or claim they ran. Check dependencies and APIs against installed versions and existing usage. Avoid new dependencies unless the task requires them. Keep changes small enough to verify independently. When review finds a defect, add or strengthen a behavioral regression test when useful, fix the defect, and rerun the affected checks.\n\nFor each completed task, report acceptance criteria satisfied, commands actually executed and their results, and remaining uncertainty. If a tool call, generation, or model step limit truncates work, mark it incomplete and resume from concrete saved state rather than assuming success. Request a short final answer while allowing internal reasoning to use the available budget.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions. On substantive coding tasks, identify relevant approved domain skills and tell each delegated specialist which skill and reference facts are relevant. Delegating does not transfer loaded skill content; children load their own relevant skill. The /bootstrap, /fix, /feature, /review, and /verify commands provide reusable workflows. Verification and review commands must not silently turn into repair tasks.",
       "permissions": [
         {
           "action": "subagent",
@@ -220,6 +220,131 @@
           "action": "subagent",
           "resource": "scribe",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -228,7 +353,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_low_reason#low",
       "steps": 12,
-      "system": "Answer only the assigned codebase question. Search narrowly, then read the relevant symbols and their immediate callers. Trace the actual path rather than inferring from names. Find existing tests and conventions. Do not edit files, design an entire solution, or broaden the task. Return at most 250 words with file:line references, the relevant flow, and explicit unknowns. If the step budget is insufficient, report what you established and the next specific read needed.",
+      "system": "Answer only the assigned codebase question. Search narrowly, then read the relevant symbols and their immediate callers. Trace the actual path rather than inferring from names. Find existing tests and conventions. Do not edit files, design an entire solution, or broaden the task. Return at most 250 words with file:line references, the relevant flow, and explicit unknowns. If the step budget is insufficient, report what you established and the next specific read needed.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -254,6 +379,131 @@
           "action": "execute",
           "resource": "*",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -262,7 +512,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_xhigh_reason#xhigh",
       "steps": 24,
-      "system": "Investigate the assigned failure from supplied reproduction details, logs, and source. Separate observations from hypotheses. Trace inputs, state transitions, guards, and failure handling. Identify a root cause supported by code references and a discriminating regression case. Do not edit files. You cannot run commands: give the lead the precise command or experiment needed when runtime evidence is missing. Return at most 450 words: evidence, most likely cause, minimal fix location, regression scenario, and uncertainty. Do not invent runtime results or spend steps on unrelated cleanup.",
+      "system": "Investigate the assigned failure from supplied reproduction details, logs, and source. Separate observations from hypotheses. Trace inputs, state transitions, guards, and failure handling. Identify a root cause supported by code references and a discriminating regression case. Do not edit files. You cannot run commands: give the lead the precise command or experiment needed when runtime evidence is missing. Return at most 450 words: evidence, most likely cause, minimal fix location, regression scenario, and uncertainty. Do not invent runtime results or spend steps on unrelated cleanup.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -288,6 +538,131 @@
           "action": "execute",
           "resource": "*",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -296,7 +671,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_reason#medium",
       "steps": 28,
-      "system": "Implement the assigned acceptance criteria in the explicitly assigned files. Read repository instructions, inspect relevant existing code, and follow its conventions. Preserve unrelated existing changes. Make the smallest coherent change; do not add speculative abstractions or expand scope. If the design is ambiguous or requires changing unassigned files, return a concrete blocker to the lead. Do not delegate, commit, push, publish, or install dependencies. Run focused existing checks when authorized and available. Return at most 300 words listing changed files, resulting behavior, checks actually run, and remaining issues. State partial completion explicitly if your step budget is reached.",
+      "system": "Implement the assigned acceptance criteria in the explicitly assigned files. Read repository instructions, inspect relevant existing code, and follow its conventions. Preserve unrelated existing changes. Make the smallest coherent change; do not add speculative abstractions or expand scope. If the design is ambiguous or requires changing unassigned files, return a concrete blocker to the lead. Do not delegate, commit, push, publish, or install dependencies. Run focused existing checks when authorized and available. Return at most 300 words listing changed files, resulting behavior, checks actually run, and remaining issues. State partial completion explicitly if your step budget is reached.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -332,6 +707,131 @@
           "action": "shell",
           "resource": "*",
           "effect": "ask"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -340,7 +840,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_reason#medium",
       "steps": 24,
-      "system": "Use the assigned requirements or reproduced bug to write focused behavioral tests in assigned test files. Inspect the current test framework first. Prefer observable behavior, boundaries, failure paths, and realistic integration points over assertions that mirror implementation details. For a regression, explain why the test would fail before the fix. Do not weaken assertions, overmock the behavior under test, or edit production code to force a pass. Preserve unrelated tests. Do not delegate, commit, push, or install dependencies. Run the relevant tests when authorized; otherwise report the exact command. Return at most 300 words with covered scenarios, changed files, actual results, and gaps. For a reproduced bug, run the focused regression against the original behavior before the production fix when feasible, then rerun it after the fix. Coordinate file ownership and timing with the lead; never revert another worker's changes to demonstrate a failure.",
+      "system": "Use the assigned requirements or reproduced bug to write focused behavioral tests in assigned test files. Inspect the current test framework first. Prefer observable behavior, boundaries, failure paths, and realistic integration points over assertions that mirror implementation details. For a regression, explain why the test would fail before the fix. Do not weaken assertions, overmock the behavior under test, or edit production code to force a pass. Preserve unrelated tests. Do not delegate, commit, push, or install dependencies. Run the relevant tests when authorized; otherwise report the exact command. Return at most 300 words with covered scenarios, changed files, actual results, and gaps. For a reproduced bug, run the focused regression against the original behavior before the production fix when feasible, then rerun it after the fix. Coordinate file ownership and timing with the lead; never revert another worker's changes to demonstrate a failure.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -376,6 +876,131 @@
           "action": "shell",
           "resource": "*",
           "effect": "ask"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -384,7 +1009,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_xhigh_reason#xhigh",
       "steps": 22,
-      "system": "Review the diff supplied by the lead against the stated requirements, reading affected code and relevant callers or tests. Ask the lead for a diff if none was supplied. Find concrete correctness defects, broken invariants, error-handling gaps, concurrency mistakes, and important missing regression coverage. Do not edit files, speculate without evidence, or report style preferences as defects. Return at most 450 words in severity order with file:line, trigger, impact, and a verification scenario for each finding. Say no actionable findings when appropriate, and state any coverage limit. Agent agreement is not proof of correctness.",
+      "system": "Review the diff supplied by the lead against the stated requirements, reading affected code and relevant callers or tests. Ask the lead for a diff if none was supplied. Find concrete correctness defects, broken invariants, error-handling gaps, concurrency mistakes, and important missing regression coverage. Do not edit files, speculate without evidence, or report style preferences as defects. Return at most 450 words in severity order with file:line, trigger, impact, and a verification scenario for each finding. Say no actionable findings when appropriate, and state any coverage limit. Agent agreement is not proof of correctness.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -410,6 +1035,131 @@
           "action": "execute",
           "resource": "*",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -418,7 +1168,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_xhigh_reason#xhigh",
       "steps": 22,
-      "system": "Review only the assigned change and its relevant security boundaries. Trace untrusted inputs through validation and authorization to sensitive operations. Consider injection, path handling, access control, secret exposure, and unsafe deserialization where applicable. Distinguish exploitable paths from defense-in-depth suggestions. Do not edit files, run exploits, read live credentials, or produce generic security checklists. Return at most 450 words with concrete file:line findings, required attacker control, impact, and a focused verification scenario; otherwise report no confirmed findings and the boundaries inspected. State missing evidence explicitly.",
+      "system": "Review only the assigned change and its relevant security boundaries. Trace untrusted inputs through validation and authorization to sensitive operations. Consider injection, path handling, access control, secret exposure, and unsafe deserialization where applicable. Distinguish exploitable paths from defense-in-depth suggestions. Do not edit files, run exploits, read live credentials, or produce generic security checklists. Return at most 450 words with concrete file:line findings, required attacker control, impact, and a focused verification scenario; otherwise report no confirmed findings and the boundaries inspected. State missing evidence explicitly.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -444,6 +1194,131 @@
           "action": "execute",
           "resource": "*",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -452,7 +1327,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_non_reason",
       "steps": 12,
-      "system": "Make only the assigned mechanical formatting or import-cleanup changes in assigned files, following the repository formatter and conventions. Preserve business logic and unrelated edits. Do not guess at syntax fixes whose meaning is ambiguous, reorder side-effectful imports, or format unrelated files. Return ambiguous issues to the lead. Do not delegate, commit, push, or install dependencies. Return at most 150 words listing changed files and checks actually run. Stop and report incomplete work if the step budget is reached.",
+      "system": "Make only the assigned mechanical formatting or import-cleanup changes in assigned files, following the repository formatter and conventions. Preserve business logic and unrelated edits. Do not guess at syntax fixes whose meaning is ambiguous, reorder side-effectful imports, or format unrelated files. Return ambiguous issues to the lead. Do not delegate, commit, push, or install dependencies. Return at most 150 words listing changed files and checks actually run. Stop and report incomplete work if the step budget is reached.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -488,6 +1363,131 @@
           "action": "shell",
           "resource": "*",
           "effect": "ask"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     },
@@ -496,7 +1496,7 @@
       "mode": "subagent",
       "model": "bosys/bosys_low_reason#low",
       "steps": 14,
-      "system": "Update only assigned documentation files or docstrings to describe behavior established by the code and the lead's requirements. Read the relevant implementation. Keep prose concise and examples accurate. Do not invent APIs, flags, test results, or supported behavior. Do not change production logic or create test boilerplate; tests belong to test-writer. Preserve unrelated edits. Do not delegate, commit, or push. Return at most 200 words listing changed files, documented behavior, and anything you could not verify.",
+      "system": "Update only assigned documentation files or docstrings to describe behavior established by the code and the lead's requirements. Read the relevant implementation. Keep prose concise and examples accurate. Do not invent APIs, flags, test results, or supported behavior. Do not change production logic or create test boilerplate; tests belong to test-writer. Preserve unrelated edits. Do not delegate, commit, or push. Return at most 200 words listing changed files, documented behavior, and anything you could not verify.\n\nLoad a relevant approved offline skill with the skill tool only when its description matches the assigned work. Use its path-derived ID, not its display name. Read its required index/workflow first and then only the needed references; do not load all skills or dump vendor documentation. Resolve relative references from the skill base directory. Follow the skill's offline and version constraints. Treat the skills library as reference material and do not edit it. Report missing references or denied access rather than inventing API behavior or widening permissions.",
       "permissions": [
         {
           "action": "*",
@@ -527,6 +1527,131 @@
           "action": "edit",
           "resource": "*",
           "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "skill",
+          "resource": "eclipse-rcp",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "h2-database-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "install4j-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-db-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "oracle-to-duckdb",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "osgi-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "powershell-offline",
+          "effect": "allow"
+        },
+        {
+          "action": "skill",
+          "resource": "qftest",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/eclipse-rcp/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/h2-database-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/install4j-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracle-db-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/oracleToDuckDB/oracle-to-duckdb/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/osgi-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/powershell-offline/*",
+          "effect": "deny"
+        },
+        {
+          "action": "external_directory",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "{env:OPENCODE_SKILLS_DIR}/qftest/*",
+          "effect": "deny"
         }
       ]
     }
@@ -561,5 +1686,40 @@
       "tokens": 8000
     },
     "buffer": "10%"
+  },
+  "skills": [
+    "{env:OPENCODE_SKILLS_DIR}"
+  ],
+  "commands": {
+    "bootstrap": {
+      "description": "Discover verified repository commands, architecture, and project instructions.",
+      "agent": "gatekeeper",
+      "subagent": false,
+      "template": "Bootstrap the current repository for reliable coding. Optional focus: $ARGUMENTS\n\nInspect existing AGENTS.md files and working-tree changes before writing. Use manifests, lockfiles, CI, build scripts, and representative source/tests to establish the real language/framework versions, module boundaries, build, focused-test, full-test, lint/type-check, and formatter-check commands with their working directories. Select only relevant approved offline skills and verify their version scope against the project. Use explorer for a bounded question if useful.\n\nCreate or carefully merge a concise project-root AGENTS.md containing verified commands, representative code paths, important invariants, compatibility requirements, generated-file rules, and a practical verification policy. Preserve existing instructions and unrelated edits; do not replace project rules with a generic template. Mark unverified commands as unverified and explain the missing evidence rather than inventing a successful run. Keep large architectural notes or logs out of AGENTS.md.\n\nThis command changes project guidance only. Do not change production code, install dependencies, start external services, or run database migrations. Run inexpensive read-only discovery commands where useful; do not automatically run every expensive build or suite. Report the files updated, discovered verification entry points, relevant skill IDs, and unresolved setup questions. Do not commit or push unless asked."
+    },
+    "fix": {
+      "description": "Reproduce a bug, implement a bounded fix, add a regression check, and verify.",
+      "agent": "gatekeeper",
+      "subagent": false,
+      "template": "Fix the following bug: $ARGUMENTS\n\nEstablish observed versus expected behavior and a concrete reproduction. Inspect project instructions, existing changes, and relevant code; load matching approved offline skills. If no useful bug description or failing check is available, ask for the minimum missing reproduction detail before editing.\n\nRun the smallest relevant baseline check when feasible. Use explorer to locate the flow only if needed, and debugger for uncertain root causes. Give children the exact failure evidence, skill IDs, and file references. Make one bounded fix through implementer or directly; serialize writers with explicit file ownership. Add a meaningful behavioral regression test through test-writer when useful. Verify the same failure before/after when feasible; never revert unrelated changes to manufacture a baseline.\n\nInspect the final diff, supply it to reviewer, and involve security-reviewer only for relevant trust-boundary changes. Evaluate findings, address concrete defects, and run focused checks plus the relevant broader checks. Stop unproductive retries after one corrective follow-up and reassess the evidence. Report the cause, changed behavior, acceptance criteria, actual commands/results, and remaining uncertainty. Mark incomplete work explicitly. Do not commit or push unless asked."
+    },
+    "feature": {
+      "description": "Implement a feature against observable acceptance criteria and existing patterns.",
+      "agent": "gatekeeper",
+      "subagent": false,
+      "template": "Implement this feature: $ARGUMENTS\n\nRead project instructions and existing changes. Establish observable acceptance criteria, including relevant boundary/failure behavior and compatibility constraints; resolve only blocking ambiguity before editing. Load matching approved offline skills and inspect an existing representative implementation. Keep a short implementation plan with assigned files and verification steps; handle small tasks directly.\n\nChoose only useful specialists. Let explorer answer bounded repository questions. Give implementer precise acceptance criteria and file ownership; let test-writer cover behavior without duplicating implementation details. Serialize overlapping writers and preserve unrelated changes. Follow existing APIs, architecture, and dependency versions. Avoid speculative abstractions and unnecessary dependencies.\n\nReview the complete resulting diff and affected callers, using reviewer for substantial changes and security-reviewer when trust boundaries change. Run relevant project checks and, for cross-module behavior, an appropriate integration or running-application check when available. Report each acceptance criterion as verified, unverified, or incomplete with actual command results and unresolved issues. Do not commit or push unless asked."
+    },
+    "review": {
+      "description": "Review a specified target or current local changes without modifying files.",
+      "agent": "gatekeeper",
+      "subagent": false,
+      "template": "Review this target: $ARGUMENTS\n\nThis is a read-only review. If no target is specified, inspect the current staged, unstaged, and relevant untracked changes. Treat explicit refs/paths as data and use Git's argument boundaries; never splice the user's text into executable shell code. Inspect project instructions, requirements, actual diff, affected callers, and relevant tests. Load matching approved offline skills.\n\nThe lead gathers the diff because read-only specialists cannot run shell commands. Give reviewer a bounded diff and relevant context. Use security-reviewer only where changed trust boundaries warrant it, and debugger to resolve a concrete disputed behavior. Compare with the correct base when reviewing a branch or commit range.\n\nReport actionable correctness defects, regressions, and important missing tests with severity, file:line, trigger, impact, and verification scenario. Separate confirmed evidence from hypotheses. Do not inflate the report with style preferences or generic checklists. Say when no actionable findings were found and state coverage limits. Do not edit files, repair findings, update snapshots, run mutating checks, commit, or push."
+    },
+    "verify": {
+      "description": "Run discovered project checks and report evidence without changing source.",
+      "agent": "gatekeeper",
+      "subagent": false,
+      "template": "Verify the current changes or this requested scope: $ARGUMENTS\n\nThis is verification, not a repair task. Read project instructions and inspect the actual changed scope. Discover exact check commands and working directories from AGENTS.md, repository scripts, manifests, and CI. Load relevant approved offline skills. Prefer an existing verification entry point when its scope is appropriate; otherwise choose focused tests plus relevant formatting-check, lint, type-check, build, or integration checks. Explain omitted or unavailable checks.\n\nRun commands through the normal shell tool and report exit status and meaningful failure output. Use check-only formatting options; do not auto-fix source, bless/update snapshots, weaken assertions, install dependencies, migrate existing databases, publish, or access production services. Normal disposable test/build artifacts are acceptable when the project checks require them. Distinguish pre-existing failures from new regressions only when a baseline actually establishes that distinction.\n\nReturn a concise table of command, working directory, pass/fail/blocked, and relevant evidence. Finish with what is verified and what remains uncertain. Return findings to the lead without silently modifying code, committing, or pushing."
+    }
   }
 }

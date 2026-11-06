@@ -78,7 +78,37 @@ def validate(config):
             raise ProbeError(f"Expected edits to be denied for {name}.")
         if permission(config, agent, "shell", "touch example") != "deny":
             raise ProbeError(f"Expected shell access to be denied for {name}.")
-    print(f"PASS offline: {len(workers)} workers; model/variant references and routing checks passed.")
+    approved = json.loads(Path(__file__).with_name("skills.json").read_text(encoding="utf-8"))
+    roots = config.get("skills", [])
+    if len(roots) != 1 or not isinstance(roots[0], str) or not roots[0]:
+        raise ProbeError("Expected one configured skills-repository source.")
+    root = roots[0].rstrip("/")
+    for name, agent in agents.items():
+        for skill_id, relative in approved.items():
+            if permission(config, agent, "skill", skill_id) != "allow":
+                raise ProbeError(f"Approved skill unavailable to {name}: {skill_id}")
+            folder = root + "/" + relative
+            if permission(config, agent, "external_directory", folder + "/*") != "allow":
+                raise ProbeError(f"Skill reference directory unavailable to {name}: {skill_id}")
+            if permission(config, agent, "edit", folder + "/SKILL.md") != "deny":
+                raise ProbeError(f"Skill library edits must be denied for {name}: {skill_id}")
+        if permission(config, agent, "skill", "unapproved-example") != "deny":
+            raise ProbeError(f"Unapproved skill loading must be denied for {name}.")
+    expected_commands = {"bootstrap", "fix", "feature", "review", "verify"}
+    commands = config.get("commands", {})
+    if not expected_commands.issubset(commands):
+        raise ProbeError("Missing one of the five coding workflow commands.")
+    for name in expected_commands:
+        command = commands[name]
+        if command.get("agent") != config["default_agent"] or command.get("subagent") is not False:
+            raise ProbeError(f"Workflow must run in the current coding-lead session: {name}")
+        if "$ARGUMENTS" not in command.get("template", "") or "!`" in command["template"]:
+            raise ProbeError(f"Workflow must accept prompt arguments without shell interpolation: {name}")
+        if "model" in command:
+            model_ref(config, command["model"])
+    print(f"PASS offline: {len(workers)} workers; {len(approved)} approved skills; five workflows; routing and permission checks passed.")
+    if "{env:OPENCODE_SKILLS_DIR}" in root:
+        print("Template paths: use install.py to render this checkout's paths before copying to the target.")
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
