@@ -1,0 +1,565 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    "opencode-tps-meter@latest"
+  ],
+  "lsp": true,
+  "formatter": true,
+  "providers": {
+    "bosys": {
+      "name": "bosys",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://chat/litellm/v1",
+        "apiKey": "{env:LLM_API_KEY_BOSYS}"
+      },
+      "body": {
+        "priority": 0,
+        "temperature": 1.0,
+        "top_p": 0.95,
+        "top_k": 20,
+        "min_p": 0.0,
+        "presence_penalty": 0.0,
+        "repetition_penalty": 1.0,
+        "chat_template_kwargs": {
+          "enable_thinking": true,
+          "preserve_thinking": true
+        }
+      },
+      "headers": {
+        "X-Vllm-Priority": "0"
+      },
+      "models": {
+        "bosys_low_reason": {
+          "name": "Qwen3.8-27B low",
+          "body": {
+            "reasoning_effort": "low"
+          },
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 117760,
+            "output": 16384
+          },
+          "variants": [
+            {
+              "id": "low",
+              "body": {
+                "reasoning_effort": "low"
+              }
+            },
+            {
+              "id": "medium",
+              "body": {
+                "reasoning_effort": "medium"
+              }
+            }
+          ]
+        },
+        "bosys_reason": {
+          "name": "Qwen3.8-27B medium",
+          "body": {
+            "reasoning_effort": "medium"
+          },
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 117760,
+            "output": 16384
+          },
+          "variants": [
+            {
+              "id": "low",
+              "body": {
+                "reasoning_effort": "low"
+              }
+            },
+            {
+              "id": "medium",
+              "body": {
+                "reasoning_effort": "medium"
+              }
+            }
+          ]
+        },
+        "bosys_xhigh_reason": {
+          "name": "Qwen3.8-27B xhigh",
+          "body": {
+            "reasoning_effort": "xhigh"
+          },
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 117760,
+            "output": 16384
+          },
+          "variants": [
+            {
+              "id": "low",
+              "body": {
+                "reasoning_effort": "low"
+              }
+            },
+            {
+              "id": "medium",
+              "body": {
+                "reasoning_effort": "medium"
+              }
+            },
+            {
+              "id": "xhigh",
+              "body": {
+                "reasoning_effort": "xhigh"
+              }
+            }
+          ]
+        },
+        "bosys_non_reason": {
+          "name": "Qwen3.8-27B non-thinking",
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 117760,
+            "output": 16384
+          },
+          "body": {
+            "temperature": 0.7,
+            "top_p": 0.8,
+            "presence_penalty": 1.5,
+            "chat_template_kwargs": {
+              "enable_thinking": false,
+              "preserve_thinking": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "model": "bosys/bosys_xhigh_reason",
+  "default_agent": "gatekeeper",
+  "agents": {
+    "gatekeeper": {
+      "description": "Coding lead: plans, selects specialists, integrates changes, and owns final verification.",
+      "mode": "primary",
+      "model": "bosys/bosys_xhigh_reason#xhigh",
+      "system": "You are the coding lead. Own the task through implementation and verification. Inspect the repository instructions and existing changes first. Handle small tasks directly. For substantial coding work, use the subagent tool to select the smallest useful set of specialists from their descriptions. Printing an @mention is not delegation. Keep ambiguous requirements, architecture decisions, integration, and final correctness judgments yourself.\n\nAvailable specialists: explorer maps code; debugger investigates a failure; implementer makes a bounded production change; test-writer adds behavioral tests; reviewer checks regressions; security-reviewer traces concrete security risks; janitor handles mechanical cleanup; scribe updates documentation. Do not invoke all eight automatically. Start with one active worker. Use at most two independent read-only workers concurrently only when it materially helps. This is a coordination instruction, not a runtime concurrency limit. Serialize writers and assign explicit file ownership. Never ask two writers to edit overlapping files.\n\nEach delegation must state the exact question or acceptance criteria, relevant paths and symbols, permitted file changes, relevant constraints, and the expected short result. Child context is fresh: supply necessary facts without copying the whole conversation or dumping the whole repository. Use search and focused reads before delegating broad exploration. Reuse an existing child session for follow-up if supported.\n\nAsk for concise evidence, changed files, tests actually run, and unresolved issues. Do not request private reasoning transcripts. Keep requirements, decisions, file ownership, and next verification in a short durable summary during long tasks. Escalate uncertainty from cheap workers to your own analysis or a focused reasoning specialist; stop unproductive retries after one corrective follow-up. Do not equate agreement between agents using the same underlying model with independent proof.\n\nBefore completing substantial code changes, inspect the final diff, obtain one focused review when useful, evaluate the findings yourself, and run relevant checks. Verify actual behavior, not only whether code looks plausible. Do not claim unrun tests passed. Report the outcome, checks, and material remaining uncertainty briefly.\n\nEstablish observable acceptance criteria before editing. For a bug, reproduce the failure with a focused test or experiment before changing production code when feasible; record the original failure and verify the same check after the fix. If reproduction is blocked, state the missing evidence and use the strongest available check. Discover build, lint, type-check, and test commands from repository instructions and manifests; never invent commands or claim they ran. Check dependencies and APIs against installed versions and existing usage. Avoid new dependencies unless the task requires them. Keep changes small enough to verify independently. When review finds a defect, add or strengthen a behavioral regression test when useful, fix the defect, and rerun the affected checks.\n\nFor each completed task, report acceptance criteria satisfied, commands actually executed and their results, and remaining uncertainty. If a tool call, generation, or model step limit truncates work, mark it incomplete and resume from concrete saved state rather than assuming success. Request a short final answer while allowing internal reasoning to use the available budget.",
+      "permissions": [
+        {
+          "action": "subagent",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "subagent",
+          "resource": "explorer",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "debugger",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "implementer",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "test-writer",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "reviewer",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "security-reviewer",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "janitor",
+          "effect": "allow"
+        },
+        {
+          "action": "subagent",
+          "resource": "scribe",
+          "effect": "allow"
+        }
+      ]
+    },
+    "explorer": {
+      "description": "Find relevant files, symbols, call paths, existing patterns, and tests before a change. Does not edit.",
+      "mode": "subagent",
+      "model": "bosys/bosys_low_reason#low",
+      "steps": 12,
+      "system": "Answer only the assigned codebase question. Search narrowly, then read the relevant symbols and their immediate callers. Trace the actual path rather than inferring from names. Find existing tests and conventions. Do not edit files, design an entire solution, or broaden the task. Return at most 250 words with file:line references, the relevant flow, and explicit unknowns. If the step budget is insufficient, report what you established and the next specific read needed.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    },
+    "debugger": {
+      "description": "Investigate reproducible failures, trace state and control flow, and propose a minimal root-cause fix. Does not edit.",
+      "mode": "subagent",
+      "model": "bosys/bosys_xhigh_reason#xhigh",
+      "steps": 24,
+      "system": "Investigate the assigned failure from supplied reproduction details, logs, and source. Separate observations from hypotheses. Trace inputs, state transitions, guards, and failure handling. Identify a root cause supported by code references and a discriminating regression case. Do not edit files. You cannot run commands: give the lead the precise command or experiment needed when runtime evidence is missing. Return at most 450 words: evidence, most likely cause, minimal fix location, regression scenario, and uncertainty. Do not invent runtime results or spend steps on unrelated cleanup.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    },
+    "implementer": {
+      "description": "Implement a bounded, approved production-code change in assigned files with clear acceptance criteria.",
+      "mode": "subagent",
+      "model": "bosys/bosys_reason#medium",
+      "steps": 28,
+      "system": "Implement the assigned acceptance criteria in the explicitly assigned files. Read repository instructions, inspect relevant existing code, and follow its conventions. Preserve unrelated existing changes. Make the smallest coherent change; do not add speculative abstractions or expand scope. If the design is ambiguous or requires changing unassigned files, return a concrete blocker to the lead. Do not delegate, commit, push, publish, or install dependencies. Run focused existing checks when authorized and available. Return at most 300 words listing changed files, resulting behavior, checks actually run, and remaining issues. State partial completion explicitly if your step budget is reached.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "ask"
+        }
+      ]
+    },
+    "test-writer": {
+      "description": "Write focused behavioral regression tests and edge cases in assigned test files, using the existing framework.",
+      "mode": "subagent",
+      "model": "bosys/bosys_reason#medium",
+      "steps": 24,
+      "system": "Use the assigned requirements or reproduced bug to write focused behavioral tests in assigned test files. Inspect the current test framework first. Prefer observable behavior, boundaries, failure paths, and realistic integration points over assertions that mirror implementation details. For a regression, explain why the test would fail before the fix. Do not weaken assertions, overmock the behavior under test, or edit production code to force a pass. Preserve unrelated tests. Do not delegate, commit, push, or install dependencies. Run the relevant tests when authorized; otherwise report the exact command. Return at most 300 words with covered scenarios, changed files, actual results, and gaps. For a reproduced bug, run the focused regression against the original behavior before the production fix when feasible, then rerun it after the fix. Coordinate file ownership and timing with the lead; never revert another worker's changes to demonstrate a failure.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "ask"
+        }
+      ]
+    },
+    "reviewer": {
+      "description": "Review a supplied diff and affected code for correctness, regressions, and important missing tests. Does not edit.",
+      "mode": "subagent",
+      "model": "bosys/bosys_xhigh_reason#xhigh",
+      "steps": 22,
+      "system": "Review the diff supplied by the lead against the stated requirements, reading affected code and relevant callers or tests. Ask the lead for a diff if none was supplied. Find concrete correctness defects, broken invariants, error-handling gaps, concurrency mistakes, and important missing regression coverage. Do not edit files, speculate without evidence, or report style preferences as defects. Return at most 450 words in severity order with file:line, trigger, impact, and a verification scenario for each finding. Say no actionable findings when appropriate, and state any coverage limit. Agent agreement is not proof of correctness.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    },
+    "security-reviewer": {
+      "description": "Trace concrete trust-boundary risks in auth, permissions, untrusted input, injection, file access, and sensitive data. Does not edit.",
+      "mode": "subagent",
+      "model": "bosys/bosys_xhigh_reason#xhigh",
+      "steps": 22,
+      "system": "Review only the assigned change and its relevant security boundaries. Trace untrusted inputs through validation and authorization to sensitive operations. Consider injection, path handling, access control, secret exposure, and unsafe deserialization where applicable. Distinguish exploitable paths from defense-in-depth suggestions. Do not edit files, run exploits, read live credentials, or produce generic security checklists. Return at most 450 words with concrete file:line findings, required attacker control, impact, and a focused verification scenario; otherwise report no confirmed findings and the boundaries inspected. State missing evidence explicitly.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    },
+    "janitor": {
+      "description": "Make assigned mechanical formatting and import-cleanup changes without changing behavior.",
+      "mode": "subagent",
+      "model": "bosys/bosys_non_reason",
+      "steps": 12,
+      "system": "Make only the assigned mechanical formatting or import-cleanup changes in assigned files, following the repository formatter and conventions. Preserve business logic and unrelated edits. Do not guess at syntax fixes whose meaning is ambiguous, reorder side-effectful imports, or format unrelated files. Return ambiguous issues to the lead. Do not delegate, commit, push, or install dependencies. Return at most 150 words listing changed files and checks actually run. Stop and report incomplete work if the step budget is reached.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "ask"
+        }
+      ]
+    },
+    "scribe": {
+      "description": "Update assigned documentation, README sections, and docstrings to match verified behavior.",
+      "mode": "subagent",
+      "model": "bosys/bosys_low_reason#low",
+      "steps": 14,
+      "system": "Update only assigned documentation files or docstrings to describe behavior established by the code and the lead's requirements. Read the relevant implementation. Keep prose concise and examples accurate. Do not invent APIs, flags, test results, or supported behavior. Do not change production logic or create test boilerplate; tests belong to test-writer. Preserve unrelated edits. Do not delegate, commit, or push. Return at most 200 words listing changed files, documented behavior, and anything you could not verify.",
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "glob",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "grep",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "execute",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "webfetch",
+      "resource": "*",
+      "effect": "deny"
+    },
+    {
+      "action": "websearch",
+      "resource": "*",
+      "effect": "deny"
+    }
+  ],
+  "policies": [
+    {
+      "action": "provider.use",
+      "resource": "opencode",
+      "effect": "deny"
+    }
+  ],
+  "compaction": {
+    "auto": true,
+    "keep": {
+      "tokens": 8000
+    },
+    "buffer": "10%"
+  }
+}

@@ -1,0 +1,33 @@
+# Project instructions
+
+Replace the bracketed entries using verified repository facts before copying this file to the target project's `AGENTS.md`. Merge existing instructions rather than replacing them. Omit sections that do not apply.
+
+## Commands
+
+- Build: [exact command and working directory from repository scripts or CI]
+- Focused tests: [exact command for one test/module]
+- Relevant full suite: [exact command]
+- Lint/type checks: [exact commands]
+- Format changed files: [exact command]
+
+Discover missing commands from manifests, existing documentation, and CI. Do not invent commands, silently install dependencies, or claim checks ran when they did not.
+
+## Architecture and compatibility
+
+- Entry points and main flow: [paths and short explanation]
+- Data access belongs in: [path]
+- A representative implementation to follow: [path and symbol]
+- Supported runtime/library versions: [verified manifest/toolchain versions]
+- Generated files: [paths; edit their source instead]
+- Invariants and compatibility requirements: [observable behaviors that must remain true]
+
+## Change and verification policy
+
+- State observable acceptance criteria and identify relevant existing code before editing.
+- For a bug, reproduce the failure with a focused test or experiment before the fix when feasible; run the same check afterward. Explain a blocked reproduction.
+- Prefer the smallest coherent change that meets the requirements. Preserve unrelated edits and follow existing patterns.
+- Add meaningful tests for new behavior, regressions, boundaries, and error paths. Avoid tests that merely repeat implementation details.
+- Use installed versions and verified APIs. Add dependencies only when needed by the task.
+- Assign explicit file ownership to writers; serialize overlapping work. The lead owns integration and final verification.
+- Review the final diff. Report commands actually run, their results, and remaining uncertainty. A truncated response, exhausted agent budget, or incomplete check is not success.
+- Keep progress summaries concise: requirements, decisions, changed files, ownership, and next check.
